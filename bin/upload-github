@@ -5,8 +5,8 @@
 # Needs github-release from https://github.com/aktau/github-release
 
 set -e
-OWNER="dg-steam"
-REPO="steam-datalake-cli"
+OWNER="miseyu"
+REPO="ecs-deploy"
 
 if [ "$1" == "" ]; then
     echo "Syntax: $0 Version"
@@ -27,10 +27,11 @@ github-release release \
     --user ${OWNER} \
     --repo ${REPO} \
     --tag ${VERSION} \
-    --name "rclone" \
-    --description "steam datalake cli tools"
+    --name "ecs-deploy" \
+    --description "ecs deployer"
 
 for build in `ls build | grep -v current`; do
+    zip -r build/${build}.zip build/${build}
     echo "Uploading ${build}"
     base="${build%.*}"
     parts=(${base//-/ })
@@ -41,8 +42,8 @@ for build in `ls build | grep -v current`; do
         --user ${OWNER} \
         --repo ${REPO} \
         --tag ${VERSION} \
-        --name "${build}" \
-        --file build/${build}
+        --name "${build}.zip" \
+        --file build/${build}.zip
 done
 
 github-release info \

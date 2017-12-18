@@ -28,7 +28,6 @@ var (
 	cgo         = flag.Bool("cgo", false, "Use cgo for the build")
 	noClean     = flag.Bool("no-clean", false, "Don't clean the build directory before running.")
 	tags        = flag.String("tags", "", "Space separated list of build tags")
-	compileOnly = flag.Bool("compile-only", false, "Just build the binary, not the zip.")
 )
 
 // GOOS/GOARCH pairs we build for
@@ -70,7 +69,7 @@ func run(args ...string) {
 // build the binary in dir
 func compileArch(version, goos, goarch, dir string) {
 	log.Printf("Compiling %s/%s", goos, goarch)
-	output := filepath.Join(dir, "rclone")
+	output := filepath.Join(dir, "ecs-deploy")
 	if goos == "windows" {
 		output += ".exe"
 	}
@@ -80,7 +79,7 @@ func compileArch(version, goos, goarch, dir string) {
 	}
 	args := []string{
 		"go", "build",
-		"--ldflags", "-s -X github.com/miseyu/rclone/fs.Version=" + version,
+		"--ldflags", "-s -X github.com/miseyu/ecs-deploy/fs.Version=" + version,
 		"-i",
 		"-o", output,
 		"-tags", *tags,
@@ -99,22 +98,6 @@ func compileArch(version, goos, goarch, dir string) {
 		env = append(env, flags...)
 	}
 	runEnv(args, env)
-	if !*compileOnly {
-		// Now build the zip
-		run("cp", "-a", "../MANUAL.txt", filepath.Join(dir, "README.txt"))
-		run("cp", "-a", "../MANUAL.html", filepath.Join(dir, "README.html"))
-		run("cp", "-a", "../rclone.1", dir)
-		if *gitLog != "" {
-			run("cp", "-a", *gitLog, dir)
-		}
-		zip := dir + ".zip"
-		run("zip", "-r9", zip, dir)
-		if *copyAs != "" {
-			copyAsZip := strings.Replace(zip, "-"+version, "-"+*copyAs, 1)
-			run("ln", zip, copyAsZip)
-		}
-		run("rm", "-rf", dir)
-	}
 	log.Printf("Done compiling %s/%s", goos, goarch)
 }
 
@@ -153,7 +136,7 @@ func compile(version string) {
 		if goos == "darwin" {
 			userGoos = "osx"
 		}
-		dir := filepath.Join("rclone-" + version + "-" + userGoos + "-" + goarch)
+		dir := filepath.Join("ecs-deploy-" + version + "-" + userGoos + "-" + goarch)
 		run <- func() {
 			compileArch(version, goos, goarch, dir)
 		}
