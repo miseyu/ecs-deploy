@@ -19,7 +19,7 @@ var (
 	count   = kingpin.Flag("count", "Desired count of instantiations to place and run in service. Defaults to existing running count.").Default("-1").Int()
 	nowait  = kingpin.Flag("nowait", "Disable waiting for all task definitions to start running").Bool()
 	// VERSION is set via ldflag
-	VERSION = "1.1.0"
+	VERSION = "1.2.0"
 )
 
 func main() {
